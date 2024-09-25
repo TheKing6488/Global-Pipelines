@@ -51,7 +51,7 @@ Here you can describe your project a little bit more. Explain the world your tho
 
 <!-- TODO Go to https://github.com/Ileriayo/markdown-badges and search for a fitting batch🙃 -->
 
-![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)  
+![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 <br>
