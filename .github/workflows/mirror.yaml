@@ -11,6 +11,9 @@ jobs:
   check-input:
     runs-on: ubuntu-latest
     steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
       - name: Push to Codeberg.org
         uses: yesolutions/mirror-action@master
         with:
