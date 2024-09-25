@@ -4,8 +4,8 @@ on:
   workflow_call:
 
 env:
-  CODEBERG_REPO: ssh://git@codeberg.org/TheKing6488/$GITHUB_REPOSITORY.git
-  GITLAB_REPO: ssh://git@gitlab.com/TheKing6488/$GITHUB_REPOSITORY.git
+  CODEBERG_REPO: ssh://git@codeberg.org/TheKing6488/${{ github.repository }}.git
+  GITLAB_REPO: ssh://git@gitlab.com/TheKing6488/${{ github.repository }}.git
 
 
 jobs:
