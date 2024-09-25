@@ -16,14 +16,12 @@ jobs:
         uses: actions/checkout@v4
         with:
             fetch-depth: 0
-
       - name: Push to Codeberg.org
         uses: yesolutions/mirror-action@master
         with:
            REMOTE:  ${{ env.CODEBERG_REPO }}
            GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
            GIT_SSH_NO_VERIFY_HOST: "true"
-
       - name: Push to Gitlab.com
         uses: yesolutions/mirror-action@master
         with:
