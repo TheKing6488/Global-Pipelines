@@ -12,6 +12,6 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
-  test-test-test:
-    uses: ./.github/workflows/mirror.yaml
-    # secrets: inherit  
+
+      - name: Mirror Repo
+        uses: ./.github/workflows/mirror.yaml
