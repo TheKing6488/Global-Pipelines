@@ -4,8 +4,9 @@ on:
   workflow_call:
 
 env:
-  GITLAB_REPO: ssh://git@gitlab.com:TheKing6488/$GITHUB_REPOSITORY.git
   CODEBERG_REPO: ssh://git@codeberg.org/TheKing6488/$GITHUB_REPOSITORY.git
+  GITLAB_REPO: ssh://git@gitlab.com:TheKing6488/$GITHUB_REPOSITORY.git
+
 
 jobs:
   check-input:
@@ -17,13 +18,13 @@ jobs:
       - name: Push to Codeberg.org
         uses: yesolutions/mirror-action@master
         with:
-           REMOTE: 'env.CODEBERG_REPO'
+           REMOTE:  ${{ env.CODEBERG_REPO }}
            GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
            GIT_SSH_NO_VERIFY_HOST: "true"
 
       - name: Push to Gitlab.com
         uses: yesolutions/mirror-action@master
         with:
-            REMOTE: 'env.GITLAB_REPO'
+            REMOTE: ${{env.GITLAB_REPO}}
             GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
             GIT_SSH_NO_VERIFY_HOST: "true"
