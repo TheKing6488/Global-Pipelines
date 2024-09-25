@@ -1,7 +1,7 @@
 name: Mirror Repos
 
 on:
-  workflow_dispatch:
+  workflow_call:
 
 env:
   GITLAB_REPO: ssh://git@gitlab.com:TheKing6488/$GITHUB_REPOSITORY.git
