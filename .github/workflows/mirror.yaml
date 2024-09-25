@@ -2,10 +2,6 @@ name: Mirror Repos
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   custom_variable:
-    #     description: 'Custom variable'
-    #     required: false  # Diese Eingabe ist optional
 
 env:
   GITLAB_REPO: ssh://git@gitlab.com:TheKing6488/$GITHUB_REPOSITORY.git
@@ -16,9 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Push to Codeberg.org
-        run: |
-            echo "Variable provided: ${{ env.GITLAB_REPO }}"        
-        #  with:
-        #   REMOTE: 'ssh://git@codeberg.org/TheKing6488/Pomodoro-Timer-SvelteKit.git'
-        #   GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        #   GIT_SSH_NO_VERIFY_HOST: "true"
+        uses: yesolutions/mirror-action@master
+        with:
+           REMOTE: 'env.CODEBERG_REPO'
+           GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+           GIT_SSH_NO_VERIFY_HOST: "true"
+
+      - name: Push to Gitlab.com
+        uses: yesolutions/mirror-action@master
+        with:
+            REMOTE: 'env.GITLAB_REPO'
+            GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+            GIT_SSH_NO_VERIFY_HOST: "true"

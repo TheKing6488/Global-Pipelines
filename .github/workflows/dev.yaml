@@ -1,0 +1,17 @@
+name: build and create release
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-create-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+  test-test-test:
+    uses: ./.github/workflows/mirror.yaml
+    # secrets: inherit  
