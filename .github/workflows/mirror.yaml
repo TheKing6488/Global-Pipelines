@@ -4,8 +4,8 @@ on:
   workflow_call:
 
 env:
-  CODEBERG_REPO: "ssh://git@codeberg.org/TheKing6488/$GITHUB_REPOSITORY.git"
-  GITLAB_REPO: "ssh://git@gitlab.com:TheKing6488/$GITHUB_REPOSITORY.git"
+  CODEBERG_REPO: ssh://git@codeberg.org/TheKing6488/$GITHUB_REPOSITORY.git
+  GITLAB_REPO: ssh://git@gitlab.com/TheKing6488/$GITHUB_REPOSITORY.git
 
 
 jobs:
@@ -14,6 +14,13 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+
+      - name: Codeberg Repo
+        run: |
+            echo ${{ env.CODEBERG_REPO }}
+      - name: Gitlab Repo
+        run: |
+            echo ${{env.GITLAB_REPO}}
 
       - name: Push to Codeberg.org
         uses: yesolutions/mirror-action@master
