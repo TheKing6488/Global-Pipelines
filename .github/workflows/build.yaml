@@ -2,13 +2,6 @@ name: Build Project
 
 on:
   workflow_call:
-    # secrets:
-    #   GH_PAT:
-    #     required: true
-      # COOLIFY_WEBHOOK:
-      #   required: true
-      # COOLIFY_TOKEN:
-      #   required: true
 
 env:
   GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}
@@ -36,7 +29,7 @@ jobs:
       - name: create tag
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
-          NEXT_VERSION=${{steps.get_next_version.outputs.version}}
+          NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
           git tag -a $NEXT_VERSION -m ""
           git push origin $NEXT_VERSION
 
@@ -48,7 +41,12 @@ jobs:
           tag: ${{ steps.get_next_version.outputs.version }}
           title: ${{ steps.get_next_version.outputs.version }}
           body: "- Docker image: https:// ${{ env.GITHUB_CONTAINER_REGISTRY }} : ${{ steps.get_next_version.outputs.version }}"
-          
+
+      - name: Convert repository name to lowercase
+        id: lowercase_repo
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
@@ -61,9 +59,9 @@ jobs:
       - name: Build and Push Docker Image
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
-          docker build ./pomodoro-timer -t ${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }} -t ${{ env.GITHUB_CONTAINER_REGISTRY }}:latest
-          docker push ${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }}
-          docker push ${{ env.GITHUB_CONTAINER_REGISTRY }}:latest
+          docker build ./pomodoro-timer -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
+          docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
+          docker push ghcr.io/${{ env.REPO_NAME }}:latest
 
       # Uncomment and use this section for deploying to Coolify
       #  if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
