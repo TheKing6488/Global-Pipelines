@@ -1,0 +1,67 @@
+name: Build Project
+
+on:
+  workflow_call:
+    secrets:
+      GH_PAT:
+        required: true
+      # COOLIFY_WEBHOOK:
+      #   required: true
+      # COOLIFY_TOKEN:
+      #   required: true
+
+env:
+  GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-and-create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # token: ${{ secrets.GH_PAT }}
+
+      - name: Get Next Version
+        id: get_next_version
+        uses: thenativeweb/get-next-version@main
+
+      - name: Create Tag and Release
+        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+        run: |
+          NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
+          git tag -a "$NEXT_VERSION" -m "Release version $NEXT_VERSION"
+          git push origin "$NEXT_VERSION"
+          
+          # Create a GitHub Release
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/releases \
+            -d '{
+              "tag_name": "'"$NEXT_VERSION"'",
+              "name": "'"$NEXT_VERSION"'",
+              "body": "- Docker image: '"${{ env.GITHUB_CONTAINER_REGISTRY }}"$NEXT_VERSION"'"
+            }'
+
+      - name: Login to GitHub Container Registry
+        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and Push Docker Image
+        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+        run: |
+          docker build ./pomodoro-timer -t ${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }} -t ${{ env.GITHUB_CONTAINER_REGISTRY }}:latest
+          docker push ${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }}
+          docker push ${{ env.GITHUB_CONTAINER_REGISTRY }}:latest
+
+      # Uncomment and use this section for deploying to Coolify
+      #  if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      # - name: Deploy to Coolify
+      #   run: | 
+      #     curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
