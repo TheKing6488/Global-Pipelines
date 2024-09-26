@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
           tag: ${{ steps.get_next_version.outputs.version }}
           title: ${{ steps.get_next_version.outputs.version }}
-          body: "- Docker image: https:// ${{ env.GITHUB_CONTAINER_REGISTRY }} : ${{ steps.get_next_version.outputs.version }}"
+          body: "- Docker image: https://${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }}"
 
       - name: Convert repository name to lowercase
         id: lowercase_repo
