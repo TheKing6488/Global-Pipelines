@@ -1,0 +1,40 @@
+name: Mirror Repos
+
+on:
+  workflow_call:
+
+env:
+  CODEBERG_REPO: ssh://git@codeberg.org/${{ github.repository }}.git
+  GITLAB_REPO: "ssh://git@gitlab.com/${{ github.repository }}.git"
+
+
+jobs:
+  mirror-codeberg:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo: ["ssh://git@gitlab.com/${{ github.repository }}.git", "${{env.GITLAB_REPO}}"]
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+      - name: Push to Codeberg.org
+        uses: yesolutions/mirror-action@master
+        with:
+           REMOTE:  ${{ matrix.repo }}
+           GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+           GIT_SSH_NO_VERIFY_HOST: "true"
+  # mirror-gitlab:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #       - name: Clone repository
+  #         uses: actions/checkout@v4
+  #         with:
+  #           fetch-depth: 0
+  #       - name: Push to Gitlab.com
+  #         uses: yesolutions/mirror-action@master
+  #         with:
+  #             REMOTE: ${{env.GITLAB_REPO}}
+  #             GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  #             GIT_SSH_NO_VERIFY_HOST: "true"
