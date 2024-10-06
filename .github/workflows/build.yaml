@@ -75,4 +75,4 @@ jobs:
       - name: Deploy to Coolify
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: | 
-           curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+           curl --request GET '${{ secrets.PROD_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
