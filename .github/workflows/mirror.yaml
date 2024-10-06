@@ -7,7 +7,6 @@ env:
   CODEBERG_REPO: ssh://git@codeberg.org/${{ github.repository }}.git
   GITLAB_REPO: ssh://git@gitlab.com/${{ github.repository }}.git
 
-
 jobs:
   mirror-codeberg:
     runs-on: ubuntu-latest

@@ -1,12 +1,21 @@
-name: Build Project
+name: Build Project, Create Release and Deploy to Coolify
 
 on:
   workflow_call:
+    inputs:
+      mirror-repo:
+        required: false
+        type: boolean
+        default: false
 
 env:
   GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}
 
 jobs:
+  mirror-repo:
+    if: ${{ inputs.mirror-repo == 'true' }}
+    uses: ./.github/workflows/mirror.yaml
+    secrets: inherit
   build-and-create-release:
     runs-on: ubuntu-latest
     steps:
