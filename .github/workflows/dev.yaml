@@ -2,6 +2,10 @@ name: Build Project
 
 on:
   workflow_call:
+    # inputs:
+
+
+
 
 jobs:
   build-and-create-release:
@@ -9,6 +13,8 @@ jobs:
     steps:
       - name: Clone Repository
         uses: actions/checkout@v4
+
+      - name: Mirror Repo
 
       - name: Convert repository name to lowercase
         id: lowercase_repo
