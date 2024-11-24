@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        if: ${{ env.SSH_PRIVATE_KEY }} != ''
+        if: ${{ env.SSH_PRIVATE_KEY != '' }}
         uses: actions/checkout@v4
         with:
             fetch-depth: 0
       - name: Push to Codeberg.org
-        if: ${{ env.SSH_PRIVATE_KEY }} != ''
+        if: ${{ env.SSH_PRIVATE_KEY != '' }}
         uses: yesolutions/mirror-action@master
         with:
            REMOTE:  ${{ env.CODEBERG_REPO }}
@@ -29,12 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: Clone repository
-          if: ${{ env.SSH_PRIVATE_KEY }} != ''
+          if: ${{ env.SSH_PRIVATE_KEY != ''}} 
           uses: actions/checkout@v4
           with:
             fetch-depth: 0
         - name: Push to Gitlab.com
-          if: ${{ env.SSH_PRIVATE_KEY }} != ''
+          if: ${{ env.SSH_PRIVATE_KEY != ''}}
           uses: yesolutions/mirror-action@master
           with:
               REMOTE: ${{env.GITLAB_REPO}}
