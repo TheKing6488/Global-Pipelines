@@ -75,6 +75,6 @@ jobs:
         env: 
           PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-        if: ${{env.COOLIFY_TOKEN}} != '' && ${{env.COOLIFY_TOKEN}} != '' && ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+        if: ${{env.COOLIFY_TOKEN != ''}} && ${{env.COOLIFY_TOKEN != ''}} && ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: | 
            curl --request GET '${{ env.PROD_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
