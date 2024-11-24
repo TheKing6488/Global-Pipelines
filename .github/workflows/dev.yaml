@@ -2,9 +2,11 @@ name: Build Project
 
 on:
   workflow_call:
-    # inputs:
-
-
+    inputs:
+      dockerfile_path:
+        type: string
+        description: 'Path to the Dockerfile'
+        required: true
 
 
 jobs:
@@ -14,7 +16,6 @@ jobs:
       - name: Clone Repository
         uses: actions/checkout@v4
 
-      - name: Mirror Repo
 
       - name: Convert repository name to lowercase
         id: lowercase_repo
@@ -31,9 +32,13 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build ./pomodoro-timer -t ghcr.io/${{ env.REPO_NAME }}:dev 
+          docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:dev 
           docker push ghcr.io/${{ env.REPO_NAME }}:dev
 
       - name: Deploy to Coolify
+        env: 
+          DEV_COOLIFY_WEBHOOK: ${{ secrets.DEV_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        if: ${{env.COOLIFY_TOKEN}} != '' && ${{env.COOLIFY_TOKEN}} != ''
         run: | 
-           curl --request GET '${{ secrets.DEV_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+           curl --request GET '${{ env.DEV_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'

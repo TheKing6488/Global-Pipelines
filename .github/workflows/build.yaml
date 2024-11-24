@@ -3,17 +3,16 @@ name: Build Project, Create Release and Deploy to Coolify
 on:
   workflow_call:
     inputs:
-      mirror-repo:
-        required: false
-        type: boolean
-        default: false
+      dockerfile_path:
+        type: string
+        description: 'Path to the Dockerfile'
+        required: true
 
 env:
   GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}
 
 jobs:
   mirror-repo:
-    if: ${{ inputs.mirror-repo == 'true' }}
     uses: ./.github/workflows/mirror.yaml
     secrets: inherit
   build-and-create-release:
@@ -68,11 +67,14 @@ jobs:
       - name: Build and Push Docker Image
         if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
-          docker build ./pomodoro-timer -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
+          docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
           docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
           docker push ghcr.io/${{ env.REPO_NAME }}:latest
 
       - name: Deploy to Coolify
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+        env: 
+          PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        if: ${{env.COOLIFY_TOKEN}} != '' && ${{env.COOLIFY_TOKEN}} != '' && ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: | 
-           curl --request GET '${{ secrets.PROD_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
+           curl --request GET '${{ env.PROD_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
