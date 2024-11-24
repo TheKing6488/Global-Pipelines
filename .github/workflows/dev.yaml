@@ -23,22 +23,22 @@ jobs:
           REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_PAT }}
+      # - name: Login to GitHub Container Registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GH_PAT }}
 
-      - name: Build and Push Docker Image
-        run: |
-          docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:dev 
-          docker push ghcr.io/${{ env.REPO_NAME }}:dev
+      # - name: Build and Push Docker Image
+      #   run: |
+      #     docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:dev 
+      #     docker push ghcr.io/${{ env.REPO_NAME }}:dev
 
       - name: Deploy to Coolify
         env: 
           DEV_COOLIFY_WEBHOOK: ${{ secrets.DEV_COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-        if: ${{env.DEV_COOLIFY_WEBHOOK != '' && env.COOLIFY_TOKEN != '' && steps.get_next_version.outputs.hasNextVersion == 'true'}}
+        if: ${{env.DEV_COOLIFY_WEBHOOK != '' && env.COOLIFY_TOKEN != ''}}
         run: | 
           curl --request GET '${{ env.DEV_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
