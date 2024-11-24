@@ -41,4 +41,5 @@ jobs:
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
         if: ${{env.COOLIFY_TOKEN}} != '' && ${{env.COOLIFY_TOKEN}} != ''
         run: | 
-           curl --request GET '${{ env.DEV_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+          echo "${{env.COOLIFY_TOKEN}} && ${{env.COOLIFY_TOKEN}}"
+          curl --request GET '${{ env.DEV_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
