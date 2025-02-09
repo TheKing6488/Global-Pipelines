@@ -3,36 +3,81 @@ name: Build Project
 on:
   workflow_call:
     inputs:
-      dockerfile_path:
-        type: string
-        description: 'Path to the Dockerfile'
+      version:
         required: true
+        type: string
 
 jobs:
+  find-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.get_files.outputs.dockerfiles }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Find all Dockerfiles
+        id: get_files
+        run: |
+          # Search for files that start with "Dockerfile"
+          dockerfiles=$(find . -type f -name 'Dockerfile*')
+          echo "Found Dockerfiles:"
+          echo "$dockerfiles"
+          # Create a JSON array from the found files
+          files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "$files_json"
+          echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
+
   build-project:
+    needs: find-dockerfiles
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-            fetch-depth: 0
-            token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
-      - name: Convert repository name to lowercase
-        id: lowercase_repo
+      - name: Convert Repository Name to Lowercase
+        id: set_repo_name
         run: |
-            REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GH_PAT }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push All Docker Images
         run: |
-            docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
-            docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
-            docker push ghcr.io/${{ env.REPO_NAME }}:latest
+          # Get the JSON array of the found Dockerfiles from the previous job
+          DOCKERFILES_JSON='${{ needs.find-dockerfiles.outputs.dockerfiles }}'
+          echo "Processing Dockerfiles: $DOCKERFILES_JSON"
+          
+          # Iterate over all Dockerfiles in the array
+          echo "$DOCKERFILES_JSON" | jq -r '.[]' | while read dockerfile; do
+            echo "Building Dockerfile: $dockerfile"
+            
+            # Determine the folder containing the Dockerfile
+            dir=$(dirname "$dockerfile")
+            folder=$(basename "$dir")
+            if [ "$folder" = "." ]; then
+              folder="${{ env.REPO_NAME }}"
+            fi
+
+            # Use the folder name as the image identifier
+            image_identifier="$folder"
+            
+            version="${{ inputs.version }}"
+            echo "Building image: ghcr.io/${image_identifier}:$version and ghcr.io/${ image_identifier }:latest"
+            
+            # Build the Docker image with two tags: version and latest
+            docker build -f "$dockerfile" -t ghcr.io/${ image_identifier }:$version -t ghcr.io/${ image_identifier }:latest .
+            
+            # Push the images
+            docker push ghcr.io/${ image_identifier }:$version
+            docker push ghcr.io/${ image_identifier }:latest
+          done
