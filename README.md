@@ -8,22 +8,22 @@
 
 <!-- TODO Change the links -->
 <!-- TODO Remove if you do not have a pipeline -->
-[![HugoBuildAndDeploy](https://img.shields.io/github/workflow/status/TheKing6488/README-TEMPLATE/PipelineName?style=for-the-badge)](https://github.com/TheKing6488/README-TEMPLATE/actions/workflows/PipelineName.yaml)
+[![HugoBuildAndDeploy](https://img.shields.io/github/workflow/status/TheKing6488/Global-Pipelines/PipelineName?style=for-the-badge)](https://github.com/TheKing6488/Global-Pipelines/actions/workflows/PipelineName.yaml)
 
 <!-- PROJECT LOGO -->
 <!-- TODO Change the Link -->
 <!-- TODO Change the image -->
 <br />
 <div align="center">
-  <a href="https://github.com/theking6488/README-TEMPLATE">
+  <a href="https://github.com/theking6488/Global-Pipelines">
     <img src="">
   </a>
 
 <!-- TODO Change the project name -->
-### README-Template
+### Global-Pipelines
 
 <!-- TODO Change the description -->
-In this repository I have created a README-Template based on Best-README-Template
+<!-- In this repository I have created a README-Template based on Best-README-Template -->
 
 
 <p align="center">
@@ -31,27 +31,29 @@ In this repository I have created a README-Template based on Best-README-Templat
 <br />
 
 <!-- TODO Change the Link for Project, Bug and Feature -->
-<a href="https://github.com/TheKing6488/README-Template"><strong>Explore the Project »</strong></a>
+<a href="https://github.com/TheKing6488/Global-Pipelines"><strong>Explore the Project »</strong></a>
 <br />
 <br />
-<a href="https://github.com/TheKing6488/README-Template/issues">Report Bug</a>
+<a href="https://github.com/TheKing6488/Global-Pipelines/issues">Report Bug</a>
 ·
-<a href="https://github.com/TheKing6488/README-Template/issues">Request Feature</a>
+<a href="https://github.com/TheKing6488/Global-Pipelines/issues">Request Feature</a>
   </p>
 </div>
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project 🗺️
 
+This CI/CD pipeline automatically detects Dockerfiles and builds Docker containers, triggers a Coolify deployment, creates a Git tag, and generates a GitHub release. It also supports mirroring to other repositories, streamlining the deployment process and ensuring consistent versioning.
+
 ### Secrets for the CI/CD Pipeline
 
 | Name                | Description                          | Type | Example | Required |
 |---------------------|--------------------------------------|-------------|--------------|--------------|
 | `GH_PAT`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ✅ |
-| `PROD_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |    |         | ❌ |
-| `DEV_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |     |     | ❌ |
-| `COOLIFY_TOKEN`    | Webhook-URL für Benachrichtigungen |           |          | ❌ |
-| `SSH_PRIVATE_KEY`    | ssh key for the remote repository to be cloned to |           |            | ❌ |
+| `PROD_COOLIFY_WEBHOOK`    | Webhook URL used to trigger a deployment in the production environment | string | https://coolify.example.com/api/v1/deploy?uuid=<your-uuid>&force=false | ❌ |
+| `DEV_COOLIFY_WEBHOOK`    | Webhook URL used for sending notifications in the development environment | string  | https://coolify.example.com/api/v1/deploy?uuid=<your-uuid>&force=false | ❌ |
+| `COOLIFY_TOKEN`    | Authentication token used for accessing the Coolify API or webhook integration |  string |          | ❌ |
+| `SSH_PRIVATE_KEY`    | ssh key for the remote repository to be mirrored to | string | ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG6Dh5NcyvT6h4NhmKKxEk3wYbvqMZ46e0l9TXZ4hwF user@example.com | ❌ |
 
 
 <br>
@@ -61,7 +63,8 @@ In this repository I have created a README-Template based on Best-README-Templat
 <!-- TODO Go to https://github.com/Ileriayo/markdown-badges and search for a fitting batch🙃 -->
 
 ![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)   
-![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)    
+![GitHub Actions](https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white)    
 
 <br>
 
@@ -89,13 +92,13 @@ The code is distributed under the MIT License. See `LICENSE` for more informatio
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- TODO Update your user name -->
 <!-- TODO Update your project name -->
-[contributors-shield]: https://img.shields.io/github/contributors/TheKing6488/README-TEMPLATE.svg?style=for-the-badge
-[contributors-url]: https://github.com/TheKing6488/README-TEMPLATE/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/TheKing6488/README-TEMPLATE.svg?style=for-the-badge
-[forks-url]: https://github.com/TheKing6488/README-TEMPLATE/network/members
-[stars-shield]: https://img.shields.io/github/stars/TheKing6488/README-TEMPLATE.svg?style=for-the-badge
-[stars-url]: https://github.com/TheKing6488/README-TEMPLATE/stargazers
-[issues-shield]: https://img.shields.io/github/issues/TheKing6488/README-TEMPLATE.svg?style=for-the-badge
-[issues-url]: https://github.com/TheKing6488/README-TEMPLATE/issues
-[license-shield]: https://img.shields.io/github/license/TheKing6488/README-TEMPLATE.svg?style=for-the-badge
-[license-url]: https://github.com/TheKing6488/README-TEMPLATE/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/TheKing6488/Global-Pipelines.svg?style=for-the-badge
+[contributors-url]: https://github.com/TheKing6488/Global-Pipelines/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TheKing6488/Global-Pipelines.svg?style=for-the-badge
+[forks-url]: https://github.com/TheKing6488/Global-Pipelines/network/members
+[stars-shield]: https://img.shields.io/github/stars/TheKing6488/Global-Pipelines.svg?style=for-the-badge
+[stars-url]: https://github.com/TheKing6488/Global-Pipelines/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TheKing6488/Global-Pipelines.svg?style=for-the-badge
+[issues-url]: https://github.com/TheKing6488/Global-Pipelines/issues
+[license-shield]: https://img.shields.io/github/license/TheKing6488/Global-Pipelines.svg?style=for-the-badge
+[license-url]: https://github.com/TheKing6488/Global-Pipelines/blob/master/LICENSE
