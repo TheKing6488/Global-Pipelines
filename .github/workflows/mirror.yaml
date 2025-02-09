@@ -3,40 +3,50 @@ name: Mirror Repos
 on:
   workflow_call:
 
-env:
-  CODEBERG_REPO: ssh://git@codeberg.org/${{ github.repository }}.git
-  GITLAB_REPO: ssh://git@gitlab.com/${{ github.repository }}.git
-  SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-
-
 jobs:
-  mirror-codeberg:
+  mirror-repos:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        remote:
+          - { name: "Codeberg", url: "ssh://git@codeberg.org/${{ github.repository }}.git" }
+          - { name: "GitLab", url: "ssh://git@gitlab.com/${{ github.repository }}.git" }
     steps:
+      - name: Check if SSH Key Exists
+        id: check_secret
+        run: |
+          echo "🔍 Checking if an SSH key is available..."
+          if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "::set-output name=key_exists::true"
+            echo "✅ SSH key found!"
+          else
+            echo "::set-output name=key_exists::false"
+            echo "⚠️ No SSH key found. Skipping mirroring."
+          fi
+
       - name: Clone repository
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+        if: steps.check_secret.outputs.key_exists == 'true'
         uses: actions/checkout@v4
         with:
-            fetch-depth: 0
-      - name: Push to Codeberg.org
-        if: ${{ env.SSH_PRIVATE_KEY != '' }}
+          fetch-depth: 0
+
+
+      - name: Push to ${{ matrix.remote.name }}
+        if: steps.check_secret.outputs.key_exists == 'true'
         uses: yesolutions/mirror-action@master
         with:
-           REMOTE:  ${{ env.CODEBERG_REPO }}
-           GIT_SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
-           GIT_SSH_NO_VERIFY_HOST: "true"
-  mirror-gitlab:
-    runs-on: ubuntu-latest
-    steps:
-        - name: Clone repository
-          if: ${{ env.SSH_PRIVATE_KEY != ''}} 
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-        - name: Push to Gitlab.com
-          if: ${{ env.SSH_PRIVATE_KEY != ''}}
-          uses: yesolutions/mirror-action@master
-          with:
-              REMOTE: ${{env.GITLAB_REPO}}
-              GIT_SSH_PRIVATE_KEY: ${{ env.SSH_PRIVATE_KEY }}
-              GIT_SSH_NO_VERIFY_HOST: "true"
+          REMOTE: ${{ matrix.remote.url }}
+          GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          GIT_SSH_NO_VERIFY_HOST: "true"
+        continue-on-error: true  
+
+      - name: Verify Push
+        if: steps.check_secret.outputs.key_exists == 'true'
+        run: |
+          echo "🔎 Verifying if the push was successful..."
+          if git ls-remote ${{ matrix.remote.url }} &> /dev/null; then
+            echo "✅ Successfully pushed to ${{ matrix.remote.name }}!"
+          else
+            echo "❌ ERROR: Push to ${{ matrix.remote.name }} failed!"
+            exit 1
+          fi

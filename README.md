@@ -25,6 +25,7 @@
 <!-- TODO Change the description -->
 In this repository I have created a README-Template based on Best-README-Template
 
+
 <p align="center">
 
 <br />
@@ -42,8 +43,16 @@ In this repository I have created a README-Template based on Best-README-Templat
 <!-- ABOUT THE PROJECT -->
 ## About The Project 🗺️
 
-<!-- TODO Tell the world about your project -->
-Here you can describe your project a little bit more. Explain the world your thoughts and what your project does. Have fun and build something.
+### Secrets for the CI/CD Pipeline
+
+| Name                | Description                          | Type | Example | Required |
+|---------------------|--------------------------------------|-------------|--------------|--------------|
+| `GH_PAT`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ✅ |
+| `PROD_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |    |         | ❌ |
+| `DEV_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |     |     | ❌ |
+| `COOLIFY_TOKEN`    | Webhook-URL für Benachrichtigungen |           |          | ❌ |
+| `SSH_PRIVATE_KEY`    | ssh key for the remote repository to be cloned to |           |            | ❌ |
+
 
 <br>
 
@@ -51,7 +60,7 @@ Here you can describe your project a little bit more. Explain the world your tho
 
 <!-- TODO Go to https://github.com/Ileriayo/markdown-badges and search for a fitting batch🙃 -->
 
-![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)
+![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)   
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 <br>
@@ -74,11 +83,8 @@ The code is distributed under the MIT License. See `LICENSE` for more informatio
 
 <!-- ACKNOWLEDGMENTS -->
 <!-- TODO Add your acknowledgments -->
-## Acknowledgments 🙏
+<!-- ## Acknowledgments 🙏 -->
 
-- [LNA-DEV README-Template](https://github.com/lna-dev/README-Template)
-- [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
-- [Markdown-Badges](https://github.com/Ileriayo/markdown-badges)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- TODO Update your user name -->

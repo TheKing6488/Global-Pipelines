@@ -1,4 +1,4 @@
-name: Build Project, Create Release and Deploy to Coolify
+name: Build Project
 
 on:
   workflow_call:
@@ -8,73 +8,31 @@ on:
         description: 'Path to the Dockerfile'
         required: true
 
-env:
-  GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}
-
 jobs:
-  mirror-repo:
-    uses: ./.github/workflows/mirror.yaml
-    secrets: inherit
-  build-and-create-release:
+  build-project:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Get Next Version
-        id: get_next_version
-        uses: thenativeweb/get-next-version@main
-
-      - name: set git configs
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Actions"
-
-      - name: create tag
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
-        run: |
-          NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
-          git tag -a $NEXT_VERSION -m ""
-          git push origin $NEXT_VERSION
-
-      - name: create new release
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
-        uses: ncipollo/release-action@v1
-        with:
-          token: ${{ secrets.GH_PAT }}
-          tag: ${{ steps.get_next_version.outputs.version }}
-          title: ${{ steps.get_next_version.outputs.version }}
-          body: "- Docker image: https://${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }}"
+            fetch-depth: 0
+            token: ${{ secrets.GH_PAT }}
 
       - name: Convert repository name to lowercase
         id: lowercase_repo
         run: |
-          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+            REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
 
       - name: Login to GitHub Container Registry
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_PAT }}
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GH_PAT }}
 
       - name: Build and Push Docker Image
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
-          docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
-          docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
-          docker push ghcr.io/${{ env.REPO_NAME }}:latest
-
-      - name: Deploy to Coolify
-        env: 
-          PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-        if: ${{env.PROD_COOLIFY_WEBHOOK != '' && env.COOLIFY_TOKEN != '' && steps.get_next_version.outputs.hasNextVersion == 'true'}}
-        run: | 
-           curl --request GET '${{ env.PROD_COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+            docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
+            docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
+            docker push ghcr.io/${{ env.REPO_NAME }}:latest
