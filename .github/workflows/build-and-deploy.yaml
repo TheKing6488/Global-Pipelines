@@ -2,11 +2,11 @@ name: Build Project, Create Release and Deploy to Coolify
 
 on:
   workflow_call:
-    inputs:
-      dockerfile_path:
-        type: string
-        description: 'Path to the Dockerfile'
-        required: true
+    # inputs:
+    #   dockerfile_path:
+    #     type: string
+    #     description: 'Path to the Dockerfile'
+    #     required: true
 
 env:
   GITHUB_CONTAINER_REGISTRY: ghcr.io/${{ github.repository }}

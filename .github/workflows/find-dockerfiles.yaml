@@ -1,28 +1,18 @@
 name: Find Dockerfiles
 
 on:
-  push:
-    branches:
-      - dev
-      - main
-  workflow_dispatch:
-
+    workflow_call:
+        
 jobs:
   find-dockerfiles:
     runs-on: ubuntu-latest
     outputs:
-      dockerfiles: ${{ steps.set-matrix.outputs.dockerfiles }}
+      dockerfiles: ${{ steps.get_files.outputs.dockerfiles }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
       - name: Find all Dockerfiles
-        id: set-matrix
+        id: get_files
         run: |
-          # Suche nach allen Dateien, die mit "Dockerfile" beginnen
-          files=$(find . -type f -name 'Dockerfile*')
-          echo "Gefundene Dockerfiles:"
-          echo "$files"
-          # Erstelle ein JSON-Array aus den gefundenen Dateien
-          files_json=$(echo "$files" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
+          dockerfiles=$(./scripts/find-dockerfiles.sh)
+          echo "dockerfiles=$dockerfiles" >> $GITHUB_OUTPUT

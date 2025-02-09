@@ -1,0 +1,66 @@
+name: Build and Deploy All Dockerfiles
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Suche alle Dockerfiles
+  find-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.get_files.outputs.dockerfiles }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Alle Dockerfiles finden
+        id: get_files
+        run: |
+          # Suche nach Dateien, die mit "Dockerfile" beginnen
+          dockerfiles=$(find . -type f -name 'Dockerfile*')
+          echo "Gefundene Dockerfiles:"
+          echo "$dockerfiles"
+          # Erstelle ein JSON-Array aus den gefundenen Dateien
+          files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "$files_json"
+          echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
+
+  # Job 2: Baue für jeden gefundenen Dockerfile ein Docker-Image und führe das Deployment aus
+  build-dockerfiles:
+    needs: find-dockerfiles
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile_path: ${{ fromJson(needs.find-dockerfiles.outputs.dockerfiles) }}
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Repository-Name in Kleinbuchstaben umwandeln
+        id: lowercase_repo
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+
+      - name: Bei GitHub Container Registry anmelden
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Docker Image bauen und pushen
+        id: build_push
+        run: |
+          # Beispiel für eine Versionsermittlung (z.B. anhand eines Zeitstempels)
+          version=$(date +'%Y%m%d%H%M%S')
+          echo "Baue Image für Dockerfile: ${{ matrix.dockerfile_path }}"
+          docker build ${{ matrix.dockerfile_path }} \
+            -t ghcr.io/${{ env.REPO_NAME }}:${version} \
+            -t ghcr.io/${{ env.REPO_NAME }}:latest
+          docker push ghcr.io/${{ env.REPO_NAME }}:${version}
+          docker push ghcr.io/${{ env.REPO_NAME }}:latest
