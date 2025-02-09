@@ -27,6 +27,7 @@ jobs:
   call-build:
     needs: get-version
     uses: ./.github/workflows/build.yaml
+    secrets: inherit
     with:
       version: ${{ needs.get-version.outputs.version }}
 
@@ -34,6 +35,7 @@ jobs:
     needs: get-version
     if: ${{ needs.get-version.outputs.hasNextVersion == 'true' }}
     uses: ./.github/workflows/create-release.yaml
+    secrets: inherit
     with:
       version: ${{ needs.get-version.outputs.version }}
           
