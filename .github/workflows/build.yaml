@@ -72,12 +72,12 @@ jobs:
             image_identifier="$folder"
             
             version="${{ inputs.version }}"
-            echo "Building image: ghcr.io/${image_identifier}:$version and ghcr.io/${ image_identifier }:latest"
+            echo "Building image: ghcr.io/${image_identifier}:$version and ghcr.io/${image_identifier}:latest"
             
             # Build the Docker image with two tags: version and latest
-            docker build -f "$dockerfile" -t ghcr.io/${ image_identifier }:$version -t ghcr.io/${ image_identifier }:latest .
+            docker build -f "$dockerfile" -t ghcr.io/${image_identifier}:$version -t ghcr.io/${image_identifier}:latest .
             
             # Push the images
-            docker push ghcr.io/${ image_identifier }:$version
-            docker push ghcr.io/${ image_identifier }:latest
+            docker push ghcr.io/${image_identifier}:$version
+            docker push ghcr.io/${image_identifier}:latest
           done
