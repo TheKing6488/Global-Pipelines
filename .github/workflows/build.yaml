@@ -1,38 +1,11 @@
-name: Build Project
+name: Build
 
 on:
-  workflow_call:
-    inputs:
-      dockerfile_path:
-        type: string
-        description: 'Path to the Dockerfile'
-        required: true
+  push:
+    branches:
+      - '**'
 
 jobs:
-  build-project:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-            fetch-depth: 0
-            token: ${{ secrets.GH_PAT }}
-
-      - name: Convert repository name to lowercase
-        id: lowercase_repo
-        run: |
-            REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-            registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GH_PAT }}
-
-      - name: Build and Push Docker Image
-        run: |
-            docker build ${{inputs.dockerfile_path}} -t ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }} -t ghcr.io/${{ env.REPO_NAME }}:latest
-            docker push ghcr.io/${{ env.REPO_NAME }}:${{ steps.get_next_version.outputs.version }}
-            docker push ghcr.io/${{ env.REPO_NAME }}:latest
+  mirror-repo:
+     uses: ././.github/workflows/main-pipeline.yaml
+     secrets: inherit

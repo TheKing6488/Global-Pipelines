@@ -43,11 +43,17 @@ In this repository I have created a README-Template based on Best-README-Templat
 <!-- ABOUT THE PROJECT -->
 ## About The Project 🗺️
 
+### Usage
+
 ### Secrets for the CI/CD Pipeline
 
 | Name                | Description                          | Type | Example | Required |
 |---------------------|--------------------------------------|-------------|--------------|--------------|
 | `GH_PAT`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ✅ |
+| `DOCKERHUB_USERNAME`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ❌ |
+| `DOCKERHUB_TOKEN`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ❌ |
+| `GITLAB_USERNAME`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ❌ |
+| `GITLAB_TOKEN`    | GitHub Personal Access Token is an access token for authentication and automation in GitHub Actions, e.g. for releases and Docker uploads | string | ghp_abcdefghijklmnopqrstuvwxyz1234567890 | ❌ |
 | `PROD_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |    |         | ❌ |
 | `DEV_COOLIFY_WEBHOOK`    | Webhook-URL für Benachrichtigungen |     |     | ❌ |
 | `COOLIFY_TOKEN`    | Webhook-URL für Benachrichtigungen |           |          | ❌ |
