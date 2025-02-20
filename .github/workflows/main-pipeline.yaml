@@ -48,7 +48,7 @@ jobs:
       - name: Deploy To Coolify Production
         run: |
           echo "Running production scripts..."
-          bash ./scripts/deploy-to-coolify.sh prod
+          bash ./scripts/bash/deploy-to-coolify.sh prod
         env:
           PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
@@ -66,7 +66,7 @@ jobs:
       - name: Deploy To Coolify Development
         run: |
           echo "Running development scripts..."
-          bash ./scripts/deploy-to-coolify.sh dev
+          bash ./scripts/bash/deploy-to-coolify.sh dev
         env:
           DEV_COOLIFY_WEBHOOK: ${{ secrets.DEV_COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
