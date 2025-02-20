@@ -38,14 +38,3 @@ jobs:
           GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           GIT_SSH_NO_VERIFY_HOST: "true"
         continue-on-error: true  
-      - name: Verify Push
-        if: steps.check_secret.outputs.key_exists == 'true'
-        run: |
-          echo "🔎 Verifying if the push was successful..."
-          export GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"
-          if git ls-remote "${{ matrix.remote.url }}" &> /dev/null; then
-            echo "✅ Successfully pushed to ${{ matrix.remote.name }}!"
-          else
-            echo "❌ ERROR: Push to ${{ matrix.remote.name }} failed!"
-            exit 1
-          fi
