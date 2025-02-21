@@ -7,5 +7,5 @@ on:
 
 jobs:
   mirror-repo:
-       uses: theking6488/global-pipelines/.github/workflows/main.yaml@dev     
+       uses: ./.github/workflows/main-pipeline.yaml     
        secrets: inherit

@@ -3,10 +3,10 @@ name: Build and Deploy All Dockerfiles
 on:
   workflow_call:
     inputs:
-     version:
-      type: string
-      description: 'version for the docker image'
-      required: true
+      version:
+        type: string
+        description: "version for the docker image"
+        required: true
 
 jobs:
   find-dockerfiles:
@@ -20,11 +20,11 @@ jobs:
       - name: Find all Dockerfiles
         id: get_files
         run: |
-          # Search for files that begin with “Dockerfile”
+          # Search for files starting with "Dockerfile"
            dockerfiles=$(find . -type f -name 'Dockerfile*')
           echo "Dockerfiles found:"
           echo "$dockerfiles"
-          # Create a JSON array from the files found
+          # Create a JSON array from the found files
           files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "$files_json"
           echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
@@ -44,19 +44,29 @@ jobs:
           REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
 
-      - name: Bei GitHub Container Registry anmelden
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PAT }}
 
-      - name: Docker Image bauen und pushen
+      - name: Build and push Docker Image
         id: build_push
         run: |
           echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
-          docker build ${{ matrix.dockerfile_path }} \
-            -t ghcr.io/${{ env.REPO_NAME }}:${{inputs.version}} \
-            -t ghcr.io/${{ env.REPO_NAME }}:latest
-          docker push ghcr.io/${{ env.REPO_NAME }}:${{inputs.version}}
-          docker push ghcr.io/${{ env.REPO_NAME }}:latest
+
+          # Push image for non-main branches
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+             docker build ${{ matrix.dockerfile_path }} -t ghcr.io/$REPO_NAME:dev
+             docker push ghcr.io/$REPO_NAME:dev
+          fi
+
+          # If it is the main branch, also build and push the "latest" tag
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            docker build ${{ matrix.dockerfile_path }} \
+              -t ghcr.io/$REPO_NAME:${{inputs.version}} \
+              -t ghcr.io/$REPO_NAME:latest
+            docker push ghcr.io/$REPO_NAME:${{inputs.version}}
+            docker push ghcr.io/$REPO_NAME:latest
+          fi

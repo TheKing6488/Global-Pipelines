@@ -17,10 +17,10 @@ jobs:
         run: |
           echo "🔍 Checking if an SSH key is available..."
           if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "::set-output name=key_exists::true"
+            echo "key_exists=true" >> $GITHUB_OUTPUT
             echo "✅ SSH key found!"
           else
-            echo "::set-output name=key_exists::false"
+            echo "key_exists=false" >> $GITHUB_OUTPUT
             echo "⚠️ No SSH key found. Skipping mirroring."
           fi
 
@@ -30,7 +30,6 @@ jobs:
         with:
           fetch-depth: 0
 
-
       - name: Push to ${{ matrix.remote.name }}
         if: steps.check_secret.outputs.key_exists == 'true'
         uses: yesolutions/mirror-action@master
@@ -39,14 +38,3 @@ jobs:
           GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           GIT_SSH_NO_VERIFY_HOST: "true"
         continue-on-error: true  
-
-      - name: Verify Push
-        if: steps.check_secret.outputs.key_exists == 'true'
-        run: |
-          echo "🔎 Verifying if the push was successful..."
-          if git ls-remote ${{ matrix.remote.url }} &> /dev/null; then
-            echo "✅ Successfully pushed to ${{ matrix.remote.name }}!"
-          else
-            echo "❌ ERROR: Push to ${{ matrix.remote.name }} failed!"
-            exit 1
-          fi

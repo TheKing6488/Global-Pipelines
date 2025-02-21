@@ -41,8 +41,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           tag: ${{ steps.get_next_version.outputs.version }}
-          title: ${{ steps.get_next_version.outputs.version }}
-          body: "- Docker image: https://${{ env.GITHUB_CONTAINER_REGISTRY }}:${{ steps.get_next_version.outputs.version }}"
+          body: "- Docker image: https://$GITHUB_CONTAINER_REGISTRY:${{ steps.get_next_version.outputs.version }}"
 
       # Optionally, add additional production-specific steps here (e.g. build tasks, asset generation, etc.)
       - name: Deploy To Coolify Production
