@@ -52,7 +52,7 @@ jobs:
 
   deploy:
     # Der reusable Deployment-Workflow wird hier mit dem Branch als Input aufgerufen.
-    uses: ./.github/workflows/deploy-to-coolify.yml
+    uses: ./.github/workflows/deploy-to-coolify.yaml
     with:
       branch: ${{ inputs.branch }}
     secrets: inherit
