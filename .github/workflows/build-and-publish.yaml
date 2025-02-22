@@ -21,11 +21,11 @@ jobs:
       - name: Find all Dockerfiles
         id: get_files
         run: |
-          # Suche nach Dateien, die mit "Dockerfile" beginnen
+          # Search for files that begin with “Dockerfile”
           dockerfiles=$(find . -type f -name 'Dockerfile*')
-          echo "Gefundene Dockerfiles:"
+          echo “Dockerfiles found:”
           echo "$dockerfiles"
-          # Erstelle ein JSON-Array aus den gefundenen Dateien
+          # Create a JSON array from the files found
           files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "$files_json"
           echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
@@ -56,11 +56,11 @@ jobs:
       - name: Build and push Docker Image
         id: build_push
         run: |
-          echo "Baue Image für Dockerfile: ${{ matrix.dockerfile_path }}"
-          # Den Input-Wert in eine Variable speichern
+          echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
+          # Save the input value in a variable
           VERSION="${{ inputs.version }}"
-          # Falls wir auf dem main-Branch sind und eine Version angegeben wurde,
-          # werden das versionsspezifische Image und das "latest"-Image gebaut.
+          # If we are on the main branch and a version has been specified,
+          # the version-specific image and the “latest” image are built.
           if [ "${{ github.ref }}" == "refs/heads/main" ] && [ -n "$VERSION" ]; then
             docker build ${{ matrix.dockerfile_path }} \
               -t ghcr.io/$REPO_NAME:$VERSION \
@@ -68,8 +68,8 @@ jobs:
             docker push ghcr.io/$REPO_NAME:$VERSION
             docker push ghcr.io/$REPO_NAME:latest
           else
-            # Andernfalls – also entweder bei einem anderen Branch oder wenn keine Version übergeben wurde –
-            # wird der Devcontainer gebaut.
+            # Otherwise - either for a different branch or if no version has been transferred
+            # the devcontainer is built.
             docker build ${{ matrix.dockerfile_path }} -t ghcr.io/$REPO_NAME:dev
             docker push ghcr.io/$REPO_NAME:dev
           fi

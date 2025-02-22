@@ -51,8 +51,8 @@ jobs:
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
 
   deploy:
-    # Der reusable Deployment-Workflow wird hier mit dem Branch als Input aufgerufen.
+    # The reusable deployment workflow is called up here with the branch as input.
     uses: ./.github/workflows/deploy-to-coolify.yaml
     with:
-      branch: ${{ inputs.branch }}
+      branch: ${{ github.ref_name }}
     secrets: inherit
