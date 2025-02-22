@@ -23,7 +23,7 @@ jobs:
         - name: Get Next Version
           id: get_version
           uses: thenativeweb/get-next-version@main
-  build-publish:
+  build-and-publish:
     needs: get_version
     uses: ./.github/workflows/build-and-publish.yaml
     with:
@@ -36,21 +36,8 @@ jobs:
     with:
       version: ${{ needs.get_version.outputs.version }}
     secrets: inherit
-  deploy-prod:
-    # This job only runs if the pushed branch is "main"
-    if: ${{ needs.get_version.outputs.hasNextVersion  == 'true' }}
-    needs: [get_version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy To Coolify Production
-        run: |
-          echo "Running production scripts..."
-          bash ./scripts/bash/deploy-to-coolify.sh prod
-        env:
-          PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-
-  deploy:
+  deploy-to-coolify:
+    needs: build-and-publish
     # The reusable deployment workflow is called up here with the branch as input.
     uses: ./.github/workflows/deploy-to-coolify.yaml
     with:

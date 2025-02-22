@@ -57,19 +57,17 @@ jobs:
         id: build_push
         run: |
           echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
-          # Save the input value in a variable
+          # Speichere den Input-Wert in einer Variablen
           VERSION="${{ inputs.version }}"
-          # If we are on the main branch and a version has been specified,
-          # the version-specific image and the “latest” image are built.
+          # Ermittele das Verzeichnis als Build-Kontext
+          CONTEXT=$(dirname "${{ matrix.dockerfile_path }}")
+          
           if [ "${{ github.ref }}" == "refs/heads/main" ] && [ -n "$VERSION" ]; then
-            docker build -f ${{ matrix.dockerfile_path }} \
-              -t ghcr.io/$REPO_NAME:$VERSION \
-              -t ghcr.io/$REPO_NAME:latest
+            docker build -f "${{ matrix.dockerfile_path }}" -t ghcr.io/$REPO_NAME:$VERSION -t ghcr.io/$REPO_NAME:latest "$CONTEXT"
             docker push ghcr.io/$REPO_NAME:$VERSION
             docker push ghcr.io/$REPO_NAME:latest
           else
-            # Otherwise - either for a different branch or if no version has been transferred
-            # the devcontainer is built.
-            docker build -f ${{ matrix.dockerfile_path }} -t ghcr.io/$REPO_NAME:dev
+            docker build -f "${{ matrix.dockerfile_path }}" -t ghcr.io/$REPO_NAME:dev "$CONTEXT"
             docker push ghcr.io/$REPO_NAME:dev
           fi
+      
