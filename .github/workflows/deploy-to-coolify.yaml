@@ -1,0 +1,53 @@
+name: Deploy to Coolify
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        type: string
+        description: "Current branch name"
+        required: true
+
+jobs:
+  deploy-prod:
+    if: ${{ inputs.branch == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Coolify (Production)
+        run: |
+          if [[ -z "${{ secrets.PROD_COOLIFY_WEBHOOK }}" || -z "${{ secrets.COOLIFY_TOKEN }}" ]]; then
+            echo "❌ Coolify Deployment skipped."
+            exit 0
+          fi
+
+          echo "🚀 Start deployment to Coolify..."
+          RESPONSE=$(curl --silent --write-out "%{http_code}" --output /dev/null \
+            --request GET "${{ secrets.PROD_COOLIFY_WEBHOOK }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}")
+
+          if [[ "$RESPONSE" -ne 200 ]]; then
+            echo "❌ Deployment failed! HTTP-Status: $RESPONSE"
+            exit 1
+          fi
+          echo "✅ Deployment successful!"
+  deploy-dev:
+    if: ${{ inputs.branch != 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Coolify (Development)
+        run: |
+            if [[ -z "${{ secrets.DEV_COOLIFY_WEBHOOK }}" || -z "${{ secrets.COOLIFY_TOKEN }}" ]]; then
+            echo "❌ Development deployment skipped."
+            exit 0
+            fi
+
+            echo "🚀 Starting development deployment to Coolify..."
+            RESPONSE=$(curl --silent --write-out "%{http_code}" --output /dev/null \
+            --request GET "${{ secrets.DEV_COOLIFY_WEBHOOK }}" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}")
+
+            if [[ "$RESPONSE" -ne 200 ]]; then
+            echo "❌ Development deployment failed! HTTP-Status: $RESPONSE"
+            exit 1
+            fi
+            echo "✅ Development deployment successful!"

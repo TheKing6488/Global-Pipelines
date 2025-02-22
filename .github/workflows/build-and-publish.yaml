@@ -5,7 +5,7 @@ on:
     inputs:
       version:
         type: string
-        description: "Version für das Docker-Image. Wird dieser Input weggelassen, wird der Devcontainer deployed."
+        description: "Version for the Docker image. If this input is omitted, the devcontainer is deployed"
         required: false
         default: ""
 

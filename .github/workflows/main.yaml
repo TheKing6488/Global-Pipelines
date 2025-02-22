@@ -9,7 +9,7 @@ jobs:
     secrets: inherit
   get_version:
       # This job only runs if the pushed branch is "main"
-      if: github.ref == 'refs/heads/main'
+      if: ${{ github.ref_name == 'main' }}
       runs-on: ubuntu-latest
       outputs:
         version: ${{ steps.get_version.outputs.version }}
@@ -50,15 +50,9 @@ jobs:
           PROD_COOLIFY_WEBHOOK: ${{ secrets.PROD_COOLIFY_WEBHOOK }}
           COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
 
-  deploy-dev:
-    # This job runs for any branch that is not "main"
-    if: github.ref != 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy To Coolify Development
-        run: |
-          echo "Running development scripts..."
-          bash ./scripts/bash/deploy-to-coolify.sh dev
-        env:
-          DEV_COOLIFY_WEBHOOK: ${{ secrets.DEV_COOLIFY_WEBHOOK }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+  deploy:
+    # Der reusable Deployment-Workflow wird hier mit dem Branch als Input aufgerufen.
+    uses: ./.github/workflows/deploy-to-coolify.yml
+    with:
+      branch: ${{ inputs.branch }}
+    secrets: inherit
