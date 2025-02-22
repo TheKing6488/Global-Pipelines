@@ -5,8 +5,9 @@ on:
     inputs:
       version:
         type: string
-        description: "version for the docker image"
-        required: true
+        description: "Version für das Docker-Image. Wird dieser Input weggelassen, wird der Devcontainer deployed."
+        required: false
+        default: ""
 
 jobs:
   find-dockerfiles:
@@ -20,14 +21,15 @@ jobs:
       - name: Find all Dockerfiles
         id: get_files
         run: |
-          # Search for files starting with "Dockerfile"
-           dockerfiles=$(find . -type f -name 'Dockerfile*')
-          echo "Dockerfiles found:"
+          # Suche nach Dateien, die mit "Dockerfile" beginnen
+          dockerfiles=$(find . -type f -name 'Dockerfile*')
+          echo "Gefundene Dockerfiles:"
           echo "$dockerfiles"
-          # Create a JSON array from the found files
+          # Erstelle ein JSON-Array aus den gefundenen Dateien
           files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "$files_json"
           echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
+
   build-dockerfiles:
     needs: find-dockerfiles
     runs-on: ubuntu-latest
@@ -54,19 +56,20 @@ jobs:
       - name: Build and push Docker Image
         id: build_push
         run: |
-          echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
-
-          # Push image for non-main branches
-          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
-             docker build ${{ matrix.dockerfile_path }} -t ghcr.io/$REPO_NAME:dev
-             docker push ghcr.io/$REPO_NAME:dev
-          fi
-
-          # If it is the main branch, also build and push the "latest" tag
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "Baue Image für Dockerfile: ${{ matrix.dockerfile_path }}"
+          # Den Input-Wert in eine Variable speichern
+          VERSION="${{ inputs.version }}"
+          # Falls wir auf dem main-Branch sind und eine Version angegeben wurde,
+          # werden das versionsspezifische Image und das "latest"-Image gebaut.
+          if [ "${{ github.ref }}" == "refs/heads/main" ] && [ -n "$VERSION" ]; then
             docker build ${{ matrix.dockerfile_path }} \
-              -t ghcr.io/$REPO_NAME:${{inputs.version}} \
+              -t ghcr.io/$REPO_NAME:$VERSION \
               -t ghcr.io/$REPO_NAME:latest
-            docker push ghcr.io/$REPO_NAME:${{inputs.version}}
+            docker push ghcr.io/$REPO_NAME:$VERSION
             docker push ghcr.io/$REPO_NAME:latest
+          else
+            # Andernfalls – also entweder bei einem anderen Branch oder wenn keine Version übergeben wurde –
+            # wird der Devcontainer gebaut.
+            docker build ${{ matrix.dockerfile_path }} -t ghcr.io/$REPO_NAME:dev
+            docker push ghcr.io/$REPO_NAME:dev
           fi
