@@ -7,41 +7,50 @@ jobs:
   mirror-repo:
     uses: ./.github/workflows/mirror-to-other-repos.yaml
     secrets: inherit
+  get_version:
+      # This job only runs if the pushed branch is "main"
+      if: github.ref == 'refs/heads/main'
+      runs-on: ubuntu-latest
+      outputs:
+        version: ${{ steps.get_version.outputs.version }}
+        hasNextVersion: ${{ steps.get_version.outputs.hasNextVersion }}
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Get Next Version
+          id: get_version
+          uses: thenativeweb/get-next-version@main
+  build-publish:
+    needs: get_version
+    uses: ./.github/workflows/build-and-publish.yaml
+    with:
+      version: ${{ needs.get_version.outputs.version }}
+    secrets: inherit
   deploy-prod:
     # This job only runs if the pushed branch is "main"
-    if: github.ref == 'refs/heads/main'
+    if: ${{ needs.get_version.outputs.hasNextVersion  == 'true' }}
+    needs: [get_version]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
-
-      - name: Get Next Version
-        id: get_next_version
-        uses: thenativeweb/get-next-version@main
-
       - name: set git configs
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
 
       - name: create tag
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         run: |
-          NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
+          NEXT_VERSION=${{ needs.get_version.outputs.version }}
           git tag -a $NEXT_VERSION -m ""
           git push origin $NEXT_VERSION
 
       - name: create new release
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GH_PAT }}
-          tag: ${{ steps.get_next_version.outputs.version }}
-          body: "- Docker image: https://$GITHUB_CONTAINER_REGISTRY:${{ steps.get_next_version.outputs.version }}"
+          tag: ${{ needs.get_version.outputs.version }}
+          body: "- Docker image: https://$GITHUB_CONTAINER_REGISTRY:${{ needs.get_version.outputs.version }}"
 
       # Optionally, add additional production-specific steps here (e.g. build tasks, asset generation, etc.)
       - name: Deploy To Coolify Production

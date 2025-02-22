@@ -1,4 +1,4 @@
-name: Build and Deploy All Dockerfiles
+name: Build and Publish All Dockerfiles
 
 on:
   workflow_call:
