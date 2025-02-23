@@ -57,9 +57,9 @@ jobs:
         id: build_push
         run: |
           echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
-          # Speichere den Input-Wert in einer Variablen
+          # Save the input value in a variable
           VERSION="${{ inputs.version }}"
-          # Ermittele das Verzeichnis als Build-Kontext
+          # Determine the directory as build context
           CONTEXT=$(dirname "${{ matrix.dockerfile_path }}")
           
           if [ "${{ github.ref }}" == "refs/heads/main" ] && [ -n "$VERSION" ]; then
