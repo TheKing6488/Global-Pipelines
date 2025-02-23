@@ -31,6 +31,7 @@ jobs:
           echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
 
   build-dockerfiles:
+    if: needs.find-dockerfiles.outputs.dockerfiles != '[]'
     needs: find-dockerfiles
     runs-on: ubuntu-latest
     strategy:
