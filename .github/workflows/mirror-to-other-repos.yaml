@@ -1,0 +1,40 @@
+name: Mirror Repos
+
+on:
+  workflow_call:
+
+jobs:
+  mirror-repos:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        remote:
+          - { name: "Codeberg", url: "ssh://git@codeberg.org/${{ github.repository }}.git" }
+          - { name: "GitLab", url: "ssh://git@gitlab.com/${{ github.repository }}.git" }
+    steps:
+      - name: Check if SSH Key Exists
+        id: check_secret
+        run: |
+          echo "🔍 Checking if an SSH key is available..."
+          if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "key_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ SSH key found!"
+          else
+            echo "key_exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No SSH key found. Skipping mirroring."
+          fi
+
+      - name: Clone repository
+        if: steps.check_secret.outputs.key_exists == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to ${{ matrix.remote.name }}
+        if: steps.check_secret.outputs.key_exists == 'true'
+        uses: yesolutions/mirror-action@master
+        with:
+          REMOTE: ${{ matrix.remote.url }}
+          GIT_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          GIT_SSH_NO_VERIFY_HOST: "true"
+        continue-on-error: true  

@@ -1,0 +1,73 @@
+name: Build and Publish All Dockerfiles
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: "Version for the Docker image. If this input is omitted, the devcontainer is deployed"
+        required: false
+        default: ""
+
+jobs:
+  find-dockerfiles:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.get_files.outputs.dockerfiles }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Find all Dockerfiles
+        id: get_files
+        run: |
+          # Search for files that begin with “Dockerfile”
+          dockerfiles=$(find . -type f -name 'Dockerfile*')
+          echo “Dockerfiles found:”
+          echo "$dockerfiles"
+          # Create a JSON array from the files found
+          files_json=$(echo "$dockerfiles" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "$files_json"
+          echo "dockerfiles=$files_json" >> $GITHUB_OUTPUT
+
+  build-dockerfiles:
+    needs: find-dockerfiles
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile_path: ${{ fromJson(needs.find-dockerfiles.outputs.dockerfiles) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Convert repository name to lowercase letters
+        id: lowercase_repo
+        run: |
+          REPO_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and push Docker Image
+        id: build_push
+        run: |
+          echo "Build image for Dockerfile: ${{ matrix.dockerfile_path }}"
+          # Save the input value in a variable
+          VERSION="${{ inputs.version }}"
+          # Determine the directory as build context
+          CONTEXT=$(dirname "${{ matrix.dockerfile_path }}")
+          
+          if [ "${{ github.ref }}" == "refs/heads/main" ] && [ -n "$VERSION" ]; then
+            docker build -f "${{ matrix.dockerfile_path }}" -t ghcr.io/$REPO_NAME:$VERSION -t ghcr.io/$REPO_NAME:latest "$CONTEXT"
+            docker push ghcr.io/$REPO_NAME:$VERSION
+            docker push ghcr.io/$REPO_NAME:latest
+          else
+            docker build -f "${{ matrix.dockerfile_path }}" -t ghcr.io/$REPO_NAME:dev "$CONTEXT"
+            docker push ghcr.io/$REPO_NAME:dev
+          fi
+      
