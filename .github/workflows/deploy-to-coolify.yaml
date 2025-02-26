@@ -22,8 +22,6 @@ jobs:
 
           echo "🚀 Start deployment to Coolify..."
           RESPONSE=$(curl --silent \
-          --max-time 5 \
-          --connect-timeout 5 \
           --write-out "%{http_code}" \
           --output /dev/null \
           --request GET "${{ secrets.PROD_COOLIFY_WEBHOOK }}" \
@@ -47,8 +45,6 @@ jobs:
 
             echo "🚀 Starting development deployment to Coolify..."
             RESPONSE=$(curl --silent \
-            --max-time 5 \
-            --connect-timeout 5 \
             --write-out "%{http_code}" \
             --output /dev/null \
             --request GET "${{ secrets.PROD_COOLIFY_WEBHOOK }}" \
