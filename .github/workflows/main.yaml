@@ -8,27 +8,21 @@ jobs:
     uses: ./.github/workflows/mirror-to-other-repos.yaml
     secrets: inherit
   get_version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-      hasNextVersion: ${{ steps.get_version.outputs.hasNextVersion }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
-      - name: Get Next Version or Set Default
-        id: get_version
-        run: |
-          if [ "${GITHUB_REF##*/}" = "main" ]; then
-            VERSION=$(thenativeweb/get-next-version) 
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "hasNextVersion=true" >> $GITHUB_OUTPUT
-          else
-            echo "version=dev-version" >> $GITHUB_OUTPUT
-            echo "hasNextVersion=false" >> $GITHUB_OUTPUT
-          fi
+      # This job only runs if the pushed branch is "main"
+      runs-on: ubuntu-latest
+      outputs:
+        version: ${{ steps.get_version.outputs.version }}
+        hasNextVersion: ${{ steps.get_version.outputs.hasNextVersion }}
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+            token: ${{ secrets.GH_PAT }}
+        - name: Get Next Version
+          if: ${{ github.ref == 'refs/heads/main' }}
+          id: get_version
+          uses: thenativeweb/get-next-version@main
   build-and-publish:
     needs: get_version
     uses: ./.github/workflows/build-and-publish.yaml
